@@ -1,0 +1,11 @@
+# Logs
+*.log
+*.log.err
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
