@@ -2,6 +2,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
   ArrowRightLeft,
   BadgeCheck,
+  Bell,
+  FileText,
   HeartHandshake,
   LayoutDashboard,
   LogOut,
@@ -14,10 +16,12 @@ import { getPartnerAccountLabel, getPartnerInstitutionName, getPartnerLocation }
 import { TranslationKey, useLanguage } from "@/lib/language";
 
 const NAV = [
-  { labelKey: "dashboard" as TranslationKey, Icon: LayoutDashboard, href: "/partner/dashboard" },
-  { labelKey: "referrals" as TranslationKey, Icon: ArrowRightLeft, href: "/partner/referrals" },
-  { labelKey: "services" as TranslationKey, Icon: HeartHandshake, href: "/partner/services" },
-  { labelKey: "profile" as TranslationKey, Icon: User, href: "/profile" },
+  { labelKey: "dashboard" as TranslationKey,      Icon: LayoutDashboard, href: "/partner/dashboard" },
+  { labelKey: "notifications" as TranslationKey,  Icon: Bell,            href: "/partner/notifications" },
+  { labelKey: "referrals" as TranslationKey,      Icon: ArrowRightLeft,  href: "/partner/referrals" },
+  { labelKey: "services" as TranslationKey,       Icon: HeartHandshake,  href: "/partner/services" },
+  { labelKey: "reports" as TranslationKey,        Icon: FileText,        href: "/partner/reports" },
+  { labelKey: "profile" as TranslationKey,        Icon: User,            href: "/profile" },
 ];
 
 export function PartnerSidebar() {

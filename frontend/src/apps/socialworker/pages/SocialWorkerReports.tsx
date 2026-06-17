@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -15,7 +15,9 @@ import {
 import {
   Activity,
   ArrowRightLeft,
+  Calendar,
   CheckCircle2,
+  Filter,
   FilePlus,
   MapPinned,
   PieChart as PieChartIcon,
@@ -70,15 +72,35 @@ function getMonthBucket(monthOffset: number): string {
 
 const SocialWorkerReports = () => {
   const currentUser = getCurrentUser();
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [typeFilter, setTypeFilter] = useState("All");
   const { data: casesData, isLoading: isLoadingCases, error: casesError } = useGetCasesQuery({ page: 0, size: 100 });
   const { data: referralsData, isLoading: isLoadingReferrals, error: referralsError } = useGetAllReferralsQuery({});
   const districtAnalyticsQuery = useGetCasesByDistrictAnalyticsQuery();
   const resolutionAnalyticsQuery = useGetResolutionRateAnalyticsQuery();
 
-  const cases = useMemo(() => {
+  const allCases = useMemo(() => {
     const items = (casesData?.data?.content ?? []) as BackendCase[];
     return getScopedDistrictCases(mapBackendCasesToRows(items));
   }, [casesData]);
+
+  const caseTypes = useMemo(
+    () => ["All", ...Array.from(new Set(allCases.map((c) => c.type).filter(Boolean))).sort()],
+    [allCases],
+  );
+
+  const cases = useMemo(() => {
+    return allCases.filter((item) => {
+      const matchesStatus = statusFilter === "All" || item.status === statusFilter;
+      const matchesType = typeFilter === "All" || item.type === typeFilter;
+      const created = item.createdAt ? new Date(item.createdAt) : null;
+      const matchesFrom = !fromDate || (created && created >= new Date(fromDate));
+      const matchesTo = !toDate || (created && created <= new Date(toDate + "T23:59:59"));
+      return matchesStatus && matchesType && matchesFrom && matchesTo;
+    });
+  }, [allCases, statusFilter, typeFilter, fromDate, toDate]);
 
   const caseIdSet = useMemo(() => new Set(cases.map((item) => item.id)), [cases]);
   const caseUuidSet = useMemo(() => new Set(cases.map((item) => item.uuid)), [cases]);
@@ -234,6 +256,67 @@ const SocialWorkerReports = () => {
                 Last_Updated: item.lastUpdated,
               }))}
             />
+          </div>
+
+          <div className="bg-card border border-border rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Filter className="w-4 h-4 text-primary" />
+              <p className="label-text">REPORT FILTERS</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Status</label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="h-8 w-full px-3 rounded-lg bg-background border border-border text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  {["All", "Pending", "In Progress", "Resolved", "Rejected"].map((s) => (
+                    <option key={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Case Type</label>
+                <select
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  className="h-8 w-full px-3 rounded-lg bg-background border border-border text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  {caseTypes.map((t) => <option key={t}>{t}</option>)}
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Calendar className="w-3 h-3" /> From Date
+                </label>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="h-8 w-full px-3 rounded-lg bg-background border border-border text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Calendar className="w-3 h-3" /> To Date
+                </label>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="h-8 w-full px-3 rounded-lg bg-background border border-border text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+            </div>
+            {(statusFilter !== "All" || typeFilter !== "All" || fromDate || toDate) && (
+              <button
+                onClick={() => { setStatusFilter("All"); setTypeFilter("All"); setFromDate(""); setToDate(""); }}
+                className="mt-3 h-7 px-3 rounded-lg bg-secondary border border-border text-[10px] text-muted-foreground hover:text-foreground transition-colors duration-200"
+              >
+                Clear filters
+              </button>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">

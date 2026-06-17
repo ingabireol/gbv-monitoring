@@ -5,6 +5,7 @@ import {
   BarChart2,
   Bell,
   Briefcase,
+  FileText,
   LayoutDashboard,
   LogOut,
   Shield,
@@ -20,6 +21,7 @@ const NAV = [
   { labelKey: "caseUpdates" as TranslationKey, Icon: Bell, href: "/police/updates" },
   { labelKey: "referrals" as TranslationKey, Icon: ArrowRightLeft, href: "/police/referrals" },
   { labelKey: "districtAnalytics" as TranslationKey, Icon: BarChart2, href: "/police/analytics" },
+  { labelKey: "reports" as TranslationKey, Icon: FileText, href: "/police/reports" },
   { labelKey: "profile" as TranslationKey, Icon: User, href: "/profile" },
 ];
 

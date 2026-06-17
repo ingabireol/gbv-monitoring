@@ -17,7 +17,7 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { ExportButton } from "@/components/ExportButton";
 import { exportToCSV, exportToPDF } from "@/lib/exportUtils";
 import { getCurrentUser } from "@/lib/auth";
-import { useGetCasesQuery, useGetCurrentProfileQuery, useUpdateCaseStatusMutation } from "@/store/api";
+import { useGetCasesQuery, useGetCurrentProfileQuery, useLogTimelineEventMutation, useUpdateCaseStatusMutation } from "@/store/api";
 import { toast } from "sonner";
 
 type UiStatus = "Critical" | "Accepted" | "Rejected" | "In Progress" | "Pending" | "Resolved";
@@ -185,7 +185,9 @@ const CaseManagement = () => {
   const [districtFilter, setDistrictFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCase, setSelectedCase] = useState<CaseRow | null>(null);
+  const [caseNote, setCaseNote] = useState("");
   const [updateCaseStatus, { isLoading: isUpdatingStatus }] = useUpdateCaseStatusMutation();
+  const [logTimelineEvent, { isLoading: isLoggingNote }] = useLogTimelineEventMutation();
   const { data, error, isLoading, refetch } = useGetCasesQuery({ page: 0, size: 100 });
 
   const cases = useMemo<CaseRow[]>(() => {
@@ -314,6 +316,21 @@ const CaseManagement = () => {
       "active-cases",
     );
     toast.success("Cases exported as CSV");
+  };
+
+  const handleLogNote = async () => {
+    if (!selectedCase || !caseNote.trim()) return;
+    try {
+      await logTimelineEvent({
+        caseId: selectedCase.uuid,
+        eventType: "CASE_UPDATE",
+        description: caseNote.trim(),
+      }).unwrap();
+      setCaseNote("");
+      toast.success("Case update logged");
+    } catch {
+      toast.error("Unable to log case update");
+    }
   };
 
   const handleStatusChange = async (status: "ACCEPTED" | "REJECTED" | "IN_PROGRESS" | "RESOLVED") => {
@@ -465,7 +482,7 @@ const CaseManagement = () => {
                     {filteredCases.map((row) => (
                       <tr
                         key={row.uuid}
-                        onClick={() => setSelectedCase(row)}
+                        onClick={() => { setSelectedCase(row); setCaseNote(""); }}
                         className="border-b border-border/50 cursor-pointer transition-colors duration-150 hover:bg-secondary/30"
                       >
                         <td className="px-4 py-3 font-mono text-primary">{row.id}</td>
@@ -570,6 +587,24 @@ const CaseManagement = () => {
                   <span className="w-1.5 h-1.5 rounded-full bg-current" />
                   {selectedCase.status}
                 </span>
+              </div>
+
+              <div className="bg-background border border-border rounded-xl p-3 space-y-2">
+                <p className="label-text">LOG CASE UPDATE</p>
+                <textarea
+                  value={caseNote}
+                  onChange={(e) => setCaseNote(e.target.value)}
+                  placeholder="Enter case note or progress update…"
+                  rows={3}
+                  className="w-full px-3 py-2 rounded-lg bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none transition-colors duration-200"
+                />
+                <button
+                  onClick={handleLogNote}
+                  disabled={isLoggingNote || !caseNote.trim()}
+                  className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors duration-200 disabled:opacity-50"
+                >
+                  {isLoggingNote ? "Saving…" : "Log Update"}
+                </button>
               </div>
 
               {(selectedCase.reportType === "Anonymous"

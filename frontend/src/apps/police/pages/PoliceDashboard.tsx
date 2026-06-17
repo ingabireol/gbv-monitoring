@@ -1,9 +1,11 @@
 import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   Briefcase,
   CheckCircle2,
   Clock,
+  MessageCircle,
   RefreshCw,
 } from "lucide-react";
 import {
@@ -25,6 +27,7 @@ import {
 } from "@/apps/police/lib/usePolicePortalData";
 
 const PoliceDashboard = () => {
+  const navigate = useNavigate();
   const {
     currentUser,
     assignedSummary,
@@ -33,6 +36,11 @@ const PoliceDashboard = () => {
     recentActivity,
     isLoading,
   } = usePolicePortalData();
+
+  const anonymousCases = useMemo(
+    () => assignedSummary.filter((item) => item.reportType === "Anonymous" || (item.type ?? "").toUpperCase() === "ANON"),
+    [assignedSummary],
+  );
 
   const kpis = useMemo(() => ([
     {
@@ -80,6 +88,29 @@ const PoliceDashboard = () => {
               {getPoliceOfficerName(currentUser)} | {getPoliceOfficerMeta(currentUser)}
             </p>
           </div>
+
+          {anonymousCases.length > 0 && (
+            <div
+              className="bg-primary/10 border border-primary/25 rounded-xl p-4 flex items-start gap-3 cursor-pointer hover:bg-primary/15 transition-colors duration-200"
+              onClick={() => navigate("/police/cases")}
+            >
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                <MessageCircle className="w-4 h-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">
+                  Anonymous Reporter Conversation{anonymousCases.length > 1 ? "s" : ""}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {anonymousCases.length} anonymous case{anonymousCases.length > 1 ? "s" : ""} in your queue —
+                  {" "}{anonymousCases.map((c) => c.caseId).join(", ")}. Open a case to view the reporter chat.
+                </p>
+              </div>
+              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-[10px] font-bold shrink-0">
+                {anonymousCases.length}
+              </span>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {kpis.map((item) => (

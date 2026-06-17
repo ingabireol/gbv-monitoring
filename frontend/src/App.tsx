@@ -44,6 +44,7 @@ import PoliceCaseDetail from "./apps/police/pages/PoliceCaseDetail.tsx";
 import PoliceReferrals from "./apps/police/pages/PoliceReferrals.tsx";
 import PoliceAnalytics from "./apps/police/pages/PoliceAnalytics.tsx";
 import PoliceCaseUpdates from "./apps/police/pages/PoliceCaseUpdates.tsx";
+import PoliceReports from "./apps/police/pages/PoliceReports.tsx";
 
 // Social worker pages
 import SocialWorkerDashboard from "./apps/socialworker/pages/SocialWorkerDashboard.tsx";
@@ -65,6 +66,8 @@ import DistrictAdminReports from "./apps/districtadmin/pages/DistrictAdminReport
 import PartnerDashboard from "./apps/partner/pages/PartnerDashboard.tsx";
 import PartnerReferrals from "./apps/partner/pages/PartnerReferrals.tsx";
 import PartnerServices from "./apps/partner/pages/PartnerServices.tsx";
+import PartnerNotifications from "./apps/partner/pages/PartnerNotifications.tsx";
+import PartnerReports from "./apps/partner/pages/PartnerReports.tsx";
 
 import VictimRegister from "./pages/VictimRegister.tsx";
 import CheckStatus from "./pages/CheckStatusDb.tsx";
@@ -140,6 +143,7 @@ const App = () => (
           <Route path="/police/referrals" element={<RoleGuard role="police"><PoliceReferrals /></RoleGuard>} />
           <Route path="/police/analytics" element={<RoleGuard role="police"><PoliceAnalytics /></RoleGuard>} />
           <Route path="/police/updates" element={<RoleGuard role="police"><PoliceCaseUpdates /></RoleGuard>} />
+          <Route path="/police/reports" element={<RoleGuard role="police"><PoliceReports /></RoleGuard>} />
 
           <Route path="/socialworker/dashboard" element={<RoleGuard role="socialworker"><SocialWorkerDashboard /></RoleGuard>} />
           <Route path="/socialworker/register"  element={<RoleGuard role="socialworker"><RegisterCase /></RoleGuard>} />
@@ -161,9 +165,11 @@ const App = () => (
           <Route path="/districtadmin/analytics"       element={<RoleGuard role="districtadmin"><DistrictAdminAnalytics /></RoleGuard>} />
           <Route path="/districtadmin/reports"         element={<RoleGuard role="districtadmin"><DistrictAdminReports /></RoleGuard>} />
 
-          <Route path="/partner/dashboard"  element={<RoleGuard role="partner"><PartnerDashboard /></RoleGuard>} />
-          <Route path="/partner/referrals"  element={<RoleGuard role="partner"><PartnerReferrals /></RoleGuard>} />
-          <Route path="/partner/services"   element={<RoleGuard role="partner"><PartnerServices /></RoleGuard>} />
+          <Route path="/partner/dashboard"       element={<RoleGuard role="partner"><PartnerDashboard /></RoleGuard>} />
+          <Route path="/partner/notifications"   element={<RoleGuard role="partner"><PartnerNotifications /></RoleGuard>} />
+          <Route path="/partner/referrals"       element={<RoleGuard role="partner"><PartnerReferrals /></RoleGuard>} />
+          <Route path="/partner/services"        element={<RoleGuard role="partner"><PartnerServices /></RoleGuard>} />
+          <Route path="/partner/reports"         element={<RoleGuard role="partner"><PartnerReports /></RoleGuard>} />
 
           <Route path="*" element={<NotFound />} />
           </Routes>
